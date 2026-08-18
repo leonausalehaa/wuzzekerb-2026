@@ -9,6 +9,9 @@ const dayNames={'2026-09-11':'Freitag, 11. September','2026-09-12':'Samstag, 12.
 function toast(t){const el=$('#toast');el.textContent=t;el.classList.add('show');clearTimeout(el.t);el.t=setTimeout(()=>el.classList.remove('show'),3000)}
 function switchView(v){$$('.view').forEach(x=>x.classList.toggle('active',x.id===v));$$('.bottomnav button').forEach(x=>x.classList.toggle('active',x.dataset.view===v));location.hash=v==='start'?'':v;scrollTo(0,0);if(v==='fotos')loadGallery()}
 $$('.bottomnav button').forEach(b=>b.onclick=()=>switchView(b.dataset.view));
+
+document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>switchView(b.dataset.go)));
+
 if(location.hash) switchView(location.hash.slice(1));
 function nextEvent(){return events.find(e=>e.start>Date.now())}
 function tick(){const e=nextEvent();if(!e){$('#nextTitle').textContent='Die Wuzzekerb 2026 ist vorbei';$('#nextMeta').textContent='Nach de Kerb is vor de Kerb.';return}$('#nextTitle').textContent=e.title;$('#nextMeta').textContent=`${dayNames[e.day]} · ${e.time} Uhr · ${e.detail}`;let d=e.start-Date.now();const vals=[Math.floor(d/86400000),Math.floor(d%86400000/3600000),Math.floor(d%3600000/60000),Math.floor(d%60000/1000)];['#cdD','#cdH','#cdM','#cdS'].forEach((s,i)=>$(s).textContent=String(vals[i]).padStart(2,'0'));}

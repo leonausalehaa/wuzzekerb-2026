@@ -1,1 +1,16 @@
-{"name":"Wuzzekerb Altenhain 2026","short_name":"Wuzzekerb","start_url":"/","display":"standalone","background_color":"#ffffff","theme_color":"#e03c8f","icons":[{"src":"/icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]}
+{
+  "name": "Wuzzekerb Altenhain 2026",
+  "short_name": "Wuzzekerb",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#df3c8f",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,1 +1,9 @@
-{"name":"wuzzekerb-2026","private":true,"type":"module","dependencies":{"@netlify/blobs":"^11.0.1","web-push":"latest"}}
+{
+  "name": "wuzzekerb-2026",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@netlify/blobs": "latest",
+    "web-push": "latest"
+  }
+}

@@ -1,19 +1,150 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#ee2b8c"><meta name="description" content="Wuzzekerb Altenhain 2026 – Countdown, Programm, Anfahrt, Push-News und Fotogalerie."><link rel="manifest" href="/manifest.webmanifest"><link rel="apple-touch-icon" href="/logo-50-jahre.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><link rel="stylesheet" href="/styles.css?v=20260818-mobile"><title>Wuzzekerb 2026 · AAKC</title></head><body>
-<div class="topline"></div>
-<header class="apphead"><a class="brand" href="#start"><span class="pig">🐷</span><span><small>ALTENHAIN · AAKC</small><b>Wuzzekerb 2026</b></span></a><button id="installBtn" class="ghost hidden">App installieren</button></header>
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#df3c8f">
+  <meta name="description" content="Wuzzekerb Altenhain 2026 – 50 Jahre. Countdown, Programm, Anfahrt, Push-News und Fotogalerie.">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="stylesheet" href="/styles.css">
+  <title>Wuzzekerb 2026 · Altenhain</title>
+</head>
+<body>
+<header class="topbar">
+  <a class="mini-logo" href="#start"><img src="/logo-50-original.png" alt="50 Jahre 1976–2026"></a>
+  <div class="brand"><b>WUZZEKERB</b><span>ALTENHAIN</span></div>
+  <button id="installBtn" class="menu-btn hidden" aria-label="App installieren">☰</button>
+</header>
+
 <main>
-<section id="start" class="view active"><div class="hero"><img class="jubilee-logo" src="/logo-50-jahre.png" alt="50 Jahre 1976–2026"><div class="eyebrow">50 JAHRE · 1976–2026</div><h1>Bei wem ist die Kerb?<span>UNS!</span></h1><div id="nextCard" class="nextcard"><div class="label">ALS NÄCHSTES</div><h2 id="nextTitle">Lädt …</h2><p id="nextMeta"></p><div class="count"><div><b id="cdD">--</b><span>Tage</span></div><div><b id="cdH">--</b><span>Std.</span></div><div><b id="cdM">--</b><span>Min.</span></div><div><b id="cdS">--</b><span>Sek.</span></div></div><div class="actions"><button class="pink" id="nextIcs">📅 Zum Kalender</button><button class="dark" id="pushBtn">🔔 Push aktivieren</button></div></div></div>
-<div class="panel"><div class="sectiontitle"><div><small>HEUTE AUF DER KERB</small><h2>Was läuft?</h2></div></div><div id="todayList" class="compactlist"></div></div>
-<div class="panel news"><div class="sectiontitle"><div><small>LIVE-NEWS</small><h2>Vom Kerbeplatz</h2></div></div><div id="newsList" class="newslist"><p class="muted">Noch keine Meldungen.</p></div></div></section>
+<section id="start" class="view active">
+  <section class="hero">
+    <img class="hero-logo" src="/logo-50-original.png" alt="50 Jahre Wuzzekerb 1976 bis 2026">
+    <h1>WEM IST DIE KERB?</h1>
+    <div class="uns">UNS!</div>
 
-<section id="programm" class="view"><div class="panel"><div class="sectiontitle"><div><small>11.–13. SEPTEMBER 2026</small><h2>Programm</h2></div><button id="allIcs" class="pink">📅 Alles als .ics</button></div><div class="tabs"><button data-day="all" class="active">Alle</button><button data-day="2026-09-11">Fr</button><button data-day="2026-09-12">Sa</button><button data-day="2026-09-13">So</button></div><div id="schedule"></div></div></section>
+    <div class="count" aria-live="polite">
+      <div><b id="cdD">--</b><span>TAGE</span></div>
+      <div><b id="cdH">--</b><span>STD</span></div>
+      <div><b id="cdM">--</b><span>MIN</span></div>
+      <div><b id="cdS">--</b><span>SEK</span></div>
+    </div>
 
-<section id="plan" class="view"><div class="panel"><div class="sectiontitle"><div><small>ANFAHRT</small><h2>Kerbeplatz Altenhain</h2></div></div><div class="arrival-card"><div class="arrival-pin">📍</div><div><h3>Bolzplatz hinter der Kahlbachhalle</h3><p class="muted">Der Kerbeplatz der Wuzzekerb befindet sich auf dem Bolzplatz hinter der Kahlbachhalle in Altenhain.</p><a class="pink route-btn" href="https://maps.app.goo.gl/u2tvAPYrR9uSjV6T8" target="_blank" rel="noopener">Route zum Kerbeplatz</a></div></div></div></section>
+    <div class="event-place">
+      <div class="event-icon">📅</div>
+      <div><b>11. – 13. SEPTEMBER 2026</b><span>📍 BOLZPLATZ ALTENHAIN</span></div>
+    </div>
+  </section>
 
-<section id="fotos" class="view"><div class="panel"><div class="sectiontitle"><div><small>DEINE WUZZEKERB</small><h2>Fotogalerie</h2></div><button id="openUpload" class="pink">📸 Foto hochladen</button></div><p class="muted">Jeder kann ein Foto einreichen. Es wird erst nach Freigabe durch den AAKC öffentlich angezeigt.</p><div id="gallery" class="gallery"><p class="muted">Noch keine freigegebenen Fotos.</p></div></div></section>
+  <section class="next-wrap">
+    <div id="nextCard" class="nextcard">
+      <div class="next-icon">◷</div>
+      <div class="next-copy">
+        <small>ALS NÄCHSTES</small>
+        <h2 id="nextTitle">Lädt …</h2>
+        <p id="nextMeta"></p>
+      </div>
+      <button id="nextIcs" class="arrow-btn" aria-label="Zum Kalender">›</button>
+    </div>
+  </section>
 
-<section id="admin" class="view"><div class="panel"><div class="sectiontitle"><div><small>AAKC INTERN</small><h2>Admin</h2></div></div><div id="adminLogin"><label>Admin-PIN<input id="adminPin" type="password" inputmode="numeric" placeholder="PIN"></label><button id="adminLoginBtn" class="dark">Anmelden</button></div><div id="adminArea" class="hidden"><div class="adminblock"><h3>Push-News senden</h3><input id="newsTitle" placeholder="Titel, z. B. Festumzug"><textarea id="newsBody" placeholder="Nachricht, z. B. Der Umzug startet in 30 Minuten."></textarea><button id="sendNews" class="pink">🔔 Push senden</button></div><div class="adminblock"><h3>Fotos freigeben</h3><div id="pendingPhotos"></div></div></div></div></section>
+  <section class="quick-grid">
+    <button data-go="programm"><span>▣</span><b>PROGRAMM</b></button>
+    <button data-go="plan"><span>●</span><b>ANFAHRT</b></button>
+    <button id="pushBtn"><span>◖</span><b>NEWS</b></button>
+    <button data-go="fotos"><span>▧</span><b>FOTOS</b></button>
+  </section>
+
+  <section class="panel news home-news">
+    <div class="sectiontitle"><div><small>LIVE-NEWS</small><h2>Vom Kerbeplatz</h2></div></div>
+    <div id="newsList" class="newslist"><p class="muted">Noch keine Meldungen.</p></div>
+  </section>
+</section>
+
+<section id="programm" class="view">
+  <div class="panel">
+    <div class="sectiontitle">
+      <div><small>11.–13. SEPTEMBER 2026</small><h2>Programm</h2></div>
+      <button id="allIcs" class="pink">Alles als .ics</button>
+    </div>
+    <div class="tabs">
+      <button data-day="all" class="active">Alle</button>
+      <button data-day="2026-09-11">Fr</button>
+      <button data-day="2026-09-12">Sa</button>
+      <button data-day="2026-09-13">So</button>
+    </div>
+    <div id="schedule"></div>
+  </div>
+</section>
+
+<section id="plan" class="view">
+  <div class="panel">
+    <div class="sectiontitle"><div><small>ANFAHRT</small><h2>Kerbeplatz Altenhain</h2></div></div>
+    <div class="arrival-card">
+      <div class="arrival-pin">📍</div>
+      <div>
+        <h3>Bolzplatz Altenhain</h3>
+        <p class="muted">Kerbeplatz auf dem Bolzplatz hinter der Kahlbachhalle.</p>
+        <a class="pink route-btn" href="https://maps.app.goo.gl/u2tvAPYrR9uSjV6T8" target="_blank" rel="noopener">Route zum Kerbeplatz</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="fotos" class="view">
+  <div class="panel">
+    <div class="sectiontitle">
+      <div><small>DEINE WUZZEKERB</small><h2>Fotogalerie</h2></div>
+      <button id="openUpload" class="pink">📸 Foto hochladen</button>
+    </div>
+    <p class="muted">Jeder kann ein Foto einreichen. Es wird erst nach Freigabe durch den AAKC öffentlich angezeigt.</p>
+    <div id="gallery" class="gallery"><p class="muted">Noch keine freigegebenen Fotos.</p></div>
+  </div>
+</section>
+
+<section id="admin" class="view">
+  <div class="panel">
+    <div class="sectiontitle"><div><small>AAKC INTERN</small><h2>Admin</h2></div></div>
+    <div id="adminLogin">
+      <label>Admin-PIN<input id="adminPin" type="password" inputmode="numeric" placeholder="PIN"></label>
+      <button id="adminLoginBtn" class="pink">Anmelden</button>
+    </div>
+    <div id="adminArea" class="hidden">
+      <div class="adminblock">
+        <h3>Push-News senden</h3>
+        <input id="newsTitle" placeholder="Titel, z. B. Festumzug">
+        <textarea id="newsBody" placeholder="Nachricht, z. B. Der Umzug startet in 30 Minuten."></textarea>
+        <button id="sendNews" class="pink">🔔 Push senden</button>
+      </div>
+      <div class="adminblock"><h3>Fotos freigeben</h3><div id="pendingPhotos"></div></div>
+    </div>
+  </div>
+</section>
 </main>
-<nav class="bottomnav"><button data-view="start" class="active"><span>🐷</span>Start</button><button data-view="programm"><span>📅</span>Programm</button><button data-view="plan"><span>📍</span>Anfahrt</button><button data-view="fotos"><span>📸</span>Fotos</button></nav>
-<div id="uploadModal" class="modal hidden"><div class="modalcard"><button id="closeUpload" class="x">×</button><h2>Kerbefoto hochladen</h2><form id="uploadForm"><label>Foto<input name="photo" type="file" accept="image/jpeg,image/png,image/webp" capture="environment" required></label><label>Name <span>(optional)</span><input name="name" maxlength="50" placeholder="Dein Name"></label><label>Bildunterschrift <span>(optional)</span><input name="caption" maxlength="120" placeholder="Was sieht man?"></label><label class="check"><input name="consent" type="checkbox" required> Ich darf dieses Foto einreichen und stimme der Veröffentlichung nach Prüfung zu.</label><button class="pink" type="submit">Foto einreichen</button><p id="uploadStatus" class="muted"></p></form></div></div>
-<div id="toast" class="toast"></div><script src="/app.js?v=20260818-mobile" defer></script></body></html>
+
+<nav class="bottomnav">
+  <button data-view="start" class="active"><span>⌂</span>START</button>
+  <button data-view="programm"><span>▣</span>PROGRAMM</button>
+  <button data-view="plan"><span>●</span>ANFAHRT</button>
+  <button data-view="fotos"><span>▧</span>FOTOS</button>
+</nav>
+
+<div id="uploadModal" class="modal hidden">
+  <div class="modalcard">
+    <button id="closeUpload" class="x">×</button>
+    <h2>Kerbefoto hochladen</h2>
+    <form id="uploadForm">
+      <label>Foto<input name="photo" type="file" accept="image/jpeg,image/png,image/webp" capture="environment" required></label>
+      <label>Name <span>(optional)</span><input name="name" maxlength="50" placeholder="Dein Name"></label>
+      <label>Bildunterschrift <span>(optional)</span><input name="caption" maxlength="120" placeholder="Was sieht man?"></label>
+      <label class="check"><input name="consent" type="checkbox" required> Ich darf dieses Foto einreichen und stimme der Veröffentlichung nach Prüfung zu.</label>
+      <button class="pink" type="submit">Foto einreichen</button>
+      <p id="uploadStatus" class="muted"></p>
+    </form>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+<script src="/app.js" defer></script>
+</body>
+</html>
