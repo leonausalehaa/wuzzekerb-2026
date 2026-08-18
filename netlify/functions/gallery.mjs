@@ -1,0 +1,2 @@
+import {json,getStore,getJson} from './_lib.mjs';
+export default async()=>{const s=getStore('wuzzekerb-gallery-meta');const {blobs}=await s.list();const rows=[];for(const b of blobs){const m=await getJson(s,b.key);if(m?.status==='approved')rows.push({...m,url:`/api/gallery-photo?id=${encodeURIComponent(m.id)}`})}rows.sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));return json({items:rows.slice(0,100)})};
