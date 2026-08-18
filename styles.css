@@ -72,3 +72,35 @@
   border-top:3px solid var(--pink)!important;
   box-shadow:0 -6px 24px rgba(224,60,143,.12)!important;
 }
+
+/* Mobile-first public release polish */
+@media(max-width:799px){
+  body{background:#fff;padding-bottom:calc(76px + env(safe-area-inset-bottom));overflow-x:hidden}
+  .topline{height:5px}
+  .apphead{height:58px;padding:0 12px;background:rgba(255,255,255,.98)}
+  .pig{width:36px;height:36px;font-size:20px}
+  .brand b{font-size:15px}.brand small{font-size:8px}
+  .apphead .ghost{font-size:11px;padding:9px 10px;border-radius:10px}
+  .hero{padding:18px 12px 18px!important;background:linear-gradient(180deg,var(--pink) 0 31%,#fff 31% 100%)!important}
+  .jubilee-logo{width:min(250px,70vw);margin:0 auto 14px;border-radius:14px;box-shadow:0 9px 24px rgba(0,0,0,.14)}
+  .hero .eyebrow{display:block;width:max-content;max-width:100%;margin:0 auto 8px;font-size:9px;padding:6px 10px}
+  .hero h1{text-align:center;font-size:clamp(31px,10vw,48px);line-height:.92;margin:8px 0 16px;letter-spacing:-.045em}
+  .hero h1 span{font-size:1.55em;margin-top:4px}
+  .nextcard{padding:16px 12px;border-radius:16px;border-width:2px!important;border-left-width:7px!important}
+  .nextcard h2{font-size:24px;line-height:1.02;margin:6px 0 8px}.nextcard p{font-size:12px;line-height:1.35;margin-bottom:12px}
+  .count{gap:5px}.count div{padding:8px 3px;border-radius:9px}.count b{font-size:22px}.count span{font-size:8px}
+  .actions{display:grid;grid-template-columns:1fr 1fr;gap:7px}.actions button{padding:11px 7px;border-radius:10px;font-size:12px}
+  .panel{margin:8px 0 0;padding:20px 12px;border-radius:0}
+  .sectiontitle{align-items:center;margin-bottom:12px;padding-bottom:10px}.sectiontitle h2{font-size:29px}.sectiontitle small{font-size:9px}
+  .sectiontitle>.pink{font-size:11px;padding:10px;border-radius:10px}
+  .compactitem,.newsitem{grid-template-columns:58px 1fr;padding:11px;border-radius:12px}.compactitem b{font-size:17px}.compactitem strong,.newsitem b{font-size:14px}.compactitem .muted,.newsitem{font-size:12px}
+  .tabs{position:sticky;top:58px;z-index:10;background:#fff;padding:8px 0;margin:0 0 10px;gap:6px}.tabs button{flex:1;border-radius:10px;padding:9px 6px}
+  .day{margin:18px 0}.day h3{font-size:23px}.event{grid-template-columns:55px 1fr 36px;gap:7px;padding:11px 0}.etime{font-size:16px}.event b{font-size:14px}.event small{font-size:11px}.event button{width:34px;height:34px}
+  .arrival-card{display:block;text-align:center;padding:20px 14px;border-radius:18px!important}.arrival-pin{margin:0 auto 12px;width:64px;height:64px;font-size:34px}.arrival-card h3{font-size:22px;margin:8px 0}.route-btn{display:block;width:100%;padding:14px!important;border-radius:12px}
+  .gallery{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.photo{border-radius:10px}.photo p{font-size:11px}
+  #openUpload{white-space:nowrap}
+  .modal{padding:0;align-items:end}.modalcard{max-width:none;border-radius:20px 20px 0 0;padding:24px 16px calc(22px + env(safe-area-inset-bottom));max-height:92vh;overflow:auto}.modalcard input{font-size:16px}
+  .bottomnav{height:calc(68px + env(safe-area-inset-bottom));background:#fff!important;border-top:1px solid #ddd!important;box-shadow:0 -8px 25px rgba(0,0,0,.1)!important}
+  .bottomnav button{background:#fff!important;color:#777!important;font-size:10px;padding:6px 2px calc(5px + env(safe-area-inset-bottom));align-content:start}.bottomnav button span{font-size:21px}.bottomnav button.active{color:var(--pink)!important;border-top:3px solid var(--pink)!important}
+  .toast{left:12px;right:12px;bottom:calc(82px + env(safe-area-inset-bottom));max-width:none;border-radius:10px}
+}
