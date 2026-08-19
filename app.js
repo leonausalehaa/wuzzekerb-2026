@@ -5,6 +5,13 @@ const events=[
 ['2026-09-12','12:00','Kinderfest auf dem Kerbeplatz','mit Grillgut, Kaffee & Kuchen'],['2026-09-12','14:00','Schubkarrenrennen an den Gräben','Traditioneller Samstagnachmittag'],['2026-09-12','16:00','3. Altenhainer Bierpongturnier','Turnier auf dem Kerbeplatz'],['2026-09-12','18:00','Zelteinlass','Happy Hour 18:30–19:30 Uhr'],['2026-09-12','19:30','Jubiläumseinlauf aller Kerbeborsch seit 1976','Danach Party mit Partyfritteuse'],
 ['2026-09-13','11:00','Gottesdienst','Katholische Kirche Maria Geburt'],['2026-09-13','14:00','Festumzug durch Altenhain','Danach After-Umzugsparty'],['2026-09-13','17:00','Tombola','Kerbesonntag'],['2026-09-13','18:00','Beerdigung','Traditioneller Abschluss']
 ].map((e,i)=>({id:'e'+i,day:e[0],time:e[1],title:e[2],detail:e[3],start:new Date(`${e[0]}T${e[1]}:00+02:00`)}));
+const internalCalendarEvents=[
+  {id:'i1',day:'2026-09-05',time:'07:30',title:'Zeltaufbau',detail:'Interner Aufbau für die Wuzzekerb 2026',start:new Date('2026-09-05T07:30:00+02:00')},
+  {id:'i2',day:'2026-09-06',time:'07:30',title:'Zeltaufbau',detail:'Interner Aufbau für die Wuzzekerb 2026',start:new Date('2026-09-06T07:30:00+02:00')},
+  {id:'i3',day:'2026-09-09',time:'18:00',title:'Baum holen',detail:'Interner Termin vor der Wuzzekerb',start:new Date('2026-09-09T18:00:00+02:00')},
+  {id:'i4',day:'2026-09-14',time:'07:30',title:'Zeltabbau',detail:'Interner Abbau nach der Wuzzekerb 2026',start:new Date('2026-09-14T07:30:00+02:00')}
+];
+
 const dayNames={'2026-09-11':'Freitag, 11. September','2026-09-12':'Samstag, 12. September','2026-09-13':'Sonntag, 13. September'};
 function toast(t){const el=$('#toast');el.textContent=t;el.classList.add('show');clearTimeout(el.t);el.t=setTimeout(()=>el.classList.remove('show'),3000)}
 function switchView(v){$$('.view').forEach(x=>x.classList.toggle('active',x.id===v));$$('.bottomnav button').forEach(x=>x.classList.toggle('active',x.dataset.view===v));location.hash=v==='start'?'':v;scrollTo(0,0);if(v==='fotos')loadGallery()}
@@ -14,14 +21,55 @@ document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=
 
 if(location.hash) switchView(location.hash.slice(1));
 function nextEvent(){return events.find(e=>e.start>Date.now())}
-function tick(){const e=nextEvent();if(!e){if($('#nextTitle')) $('#nextTitle').textContent='Die Wuzzekerb 2026 ist vorbei';if($('#nextMeta')) $('#nextMeta').textContent='Nach de Kerb is vor de Kerb.';return}if($('#nextTitle')) if($('#nextTitle')) $('#nextTitle').textContent=e.title;if($('#nextMeta')) if($('#nextMeta')) $('#nextMeta').textContent=`${dayNames[e.day]} · ${e.time} Uhr · ${e.detail}`;let d=e.start-Date.now();const vals=[Math.floor(d/86400000),Math.floor(d%86400000/3600000),Math.floor(d%3600000/60000),Math.floor(d%60000/1000)];['#cdD','#cdH','#cdM','#cdS'].forEach((s,i)=>{const el=$(s);if(el)el.textContent=String(vals[i]).padStart(2,'0')});}
+const cleanupStart=new Date('2026-09-13T18:00:00+02:00');
+const cleanupEnd=new Date('2026-09-13T20:00:00+02:00');
+
+function setCountdown(ms){
+  const safe=Math.max(0,ms);
+  const vals=[
+    Math.floor(safe/86400000),
+    Math.floor(safe%86400000/3600000),
+    Math.floor(safe%3600000/60000),
+    Math.floor(safe%60000/1000)
+  ];
+  ['#cdD','#cdH','#cdM','#cdS'].forEach((s,i)=>{
+    const el=$(s);
+    if(el) el.textContent=String(vals[i]).padStart(2,'0');
+  });
+}
+
+function tick(){
+  const now=Date.now();
+  const e=nextEvent();
+
+  if(e){
+    if($('#nextTitle')) $('#nextTitle').textContent=e.title;
+    if($('#nextMeta')) $('#nextMeta').textContent=`${dayNames[e.day]} · ${e.time} Uhr · ${e.detail}`;
+    setCountdown(e.start-now);
+    return;
+  }
+
+  if(now>=cleanupStart.getTime() && now<cleanupEnd.getTime()){
+    if($('#nextTitle')) $('#nextTitle').textContent='Gemeinsames Aufräumen';
+    if($('#nextMeta')) $('#nextMeta').textContent='Sonntag, 13. September · Aufräumen bis 20:00 Uhr';
+    setCountdown(cleanupEnd.getTime()-now);
+    return;
+  }
+
+  if(now>=cleanupEnd.getTime()){
+    if($('#nextTitle')) $('#nextTitle').textContent='Kollektives Kerbe-Besäufnis 🍻';
+    if($('#nextMeta')) $('#nextMeta').textContent='Aufräumen geschafft – jetzt wird gemeinsam auf die Kerb angestoßen.';
+    setCountdown(0);
+    return;
+  }
+}
 function renderToday(){ return; }
 function renderSchedule(filter='all'){const now=Date.now(),next=nextEvent();const days=[...new Set(events.map(e=>e.day))].filter(d=>filter==='all'||filter===d);const scheduleEl=$('#schedule');if(!scheduleEl)return;scheduleEl.innerHTML=days.map(d=>`<div class="day"><h3>${dayNames[d]}</h3>${events.filter(e=>e.day===d).map(e=>`<div class="event ${e.id===next?.id?'next':''} ${e.start<now?'past':''}"><div class="etime">${e.time}</div><div><b>${e.title}</b><br><small>${e.detail}</small></div><button onclick="downloadIcs('${e.id}')">📅</button></div>`).join('')}</div>`).join('')}
 $$('.tabs button').forEach(b=>b.onclick=()=>{$$('.tabs button').forEach(x=>x.classList.remove('active'));b.classList.add('active');renderSchedule(b.dataset.day)});
 function icsDate(d){return d.toISOString().replace(/[-:]/g,'').replace(/\.\d{3}/,'')}
 function makeIcs(items){return `BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//AAKC//Wuzzekerb 2026//DE\r\n${items.map(e=>`BEGIN:VEVENT\r\nUID:${e.id}@wuzzekerb2026\r\nDTSTART:${icsDate(e.start)}\r\nSUMMARY:${e.title}\r\nDESCRIPTION:${e.detail}\r\nBEGIN:VALARM\r\nTRIGGER:-PT30M\r\nACTION:DISPLAY\r\nDESCRIPTION:In 30 Minuten: ${e.title}\r\nEND:VALARM\r\nEND:VEVENT`).join('\r\n')}\r\nEND:VCALENDAR`}
 function dl(text,name){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type:'text/calendar'}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
-window.downloadIcs=id=>{const e=events.find(x=>x.id===id);dl(makeIcs([e]),`wuzzekerb-${id}.ics`)}; $('#allIcs').onclick=()=>dl(makeIcs(events),'wuzzekerb-2026-programm.ics'); $('#nextIcs').onclick=()=>{const e=nextEvent();if(e)downloadIcs(e.id)};
+window.downloadIcs=id=>{const e=events.find(x=>x.id===id);dl(makeIcs([e]),`wuzzekerb-${id}.ics`)}; $('#allIcs').onclick=()=>dl(makeIcs([...internalCalendarEvents,...events]),'wuzzekerb-2026-kalender.ics'); $('#nextIcs').onclick=()=>{const e=nextEvent();if(e)downloadIcs(e.id)};
 async function api(path,opt={}){const r=await fetch(API+path,opt);if(!r.ok)throw new Error((await r.json().catch(()=>({}))).error||`Fehler ${r.status}`);return r.json()}
 async function loadNews(){try{const d=await api('/news');$('#newsList').innerHTML=d.items?.length?d.items.map(n=>`<div class="newsitem"><div>🔔</div><div><b>${n.title}</b><div>${n.body}</div><small class="muted">${new Date(n.createdAt).toLocaleString('de-DE')}</small></div></div>`).join(''):'<p class="muted">Noch keine Meldungen.</p>'}catch{}}
 async function loadGallery(){try{const d=await api('/gallery');$('#gallery').innerHTML=d.items?.length?d.items.map(p=>`<div class="photo"><img loading="lazy" src="${p.url}" alt="Kerbefoto"><p>${p.caption||''}${p.name?`<br><b>📷 ${p.name}</b>`:''}</p></div>`).join(''):'<p class="muted">Noch keine freigegebenen Fotos.</p>'}catch{}}

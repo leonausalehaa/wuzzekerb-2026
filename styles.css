@@ -113,3 +113,28 @@ main{max-width:900px;margin:auto}
   .quick-grid button b{font-size:11px}
   .panel{margin:14px 12px;padding:16px}
 }
+
+.ui-icon{width:1.45em;height:1.45em;display:inline-block;vertical-align:middle;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+.calendar-subscribe{
+  margin:4px 0 18px;
+  padding:16px;
+  border:1px solid var(--line,#eee5eb);
+  border-radius:16px;
+  background:var(--soft,#fff5fa);
+  display:flex;
+  gap:16px;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:wrap;
+}
+.calendar-subscribe small{display:block;color:var(--pink,#df3c8f);font-weight:900;margin-bottom:3px}
+.calendar-subscribe b{display:block;font-size:18px}
+.calendar-subscribe span{display:block;color:var(--muted,#747474);font-size:13px;margin-top:3px}
+.calendar-actions{display:flex;gap:8px;flex-wrap:wrap}
+.calendar-download{display:inline-block;padding:12px 14px;border-radius:12px;border:1px solid var(--pink,#df3c8f);color:var(--pink,#df3c8f);text-decoration:none;font-weight:800}
+@media(max-width:560px){
+  .calendar-subscribe{align-items:stretch}
+  .calendar-actions{width:100%}
+  .calendar-actions a{flex:1;text-align:center}
+}
