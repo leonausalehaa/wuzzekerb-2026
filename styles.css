@@ -139,15 +139,9 @@ main{max-width:900px;margin:auto}
   .calendar-actions a{flex:1;text-align:center}
 }
 
-/* Final: echte einheitliche Line-Icons statt Platzhalter-Glyphen */
-.nav-svg{
-  width:28px;height:28px;display:block;margin:0 auto;
-  fill:none;stroke:currentColor;stroke-width:1.8;
-  stroke-linecap:round;stroke-linejoin:round;
-}
-.quick .nav-svg{width:31px;height:31px}
-.bottomnav .nav-svg{width:24px;height:24px}
-.quick button,.bottomnav button{color:inherit}
-.quick button .nav-svg{color:var(--pink,#e2388d)}
-.bottomnav button .nav-svg{color:#111}
-.bottomnav button.active .nav-svg{color:var(--pink,#e2388d)}
+.bottomnav{grid-template-columns:repeat(5,1fr)!important}.team-gate{max-width:420px;margin:20px auto}.team-gate input{width:100%;padding:13px;border:1px solid #ddd;border-radius:10px;margin:8px 0 12px}.team-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}.team-tabs button{padding:13px;border-radius:12px;border:1px solid var(--line);background:#fff;font-weight:800}.team-tabs button.active{background:var(--pink);color:#fff;border-color:var(--pink)}.team-progress-card{background:var(--soft);border-radius:16px;padding:16px;margin-bottom:16px}.team-progress-card small{display:block;color:var(--pink);font-weight:900}.team-progress-card b{font-size:30px}.progressbar{height:12px;background:#f1dce7;border-radius:999px;overflow:hidden;margin:10px 0}.progressbar span{display:block;height:100%;width:0;background:var(--pink);transition:.3s}.team-stats{display:flex;gap:12px;flex-wrap:wrap;font-size:13px;font-weight:700}.team-filter-row{display:flex;gap:8px;margin:12px 0}.team-filter-row select,#personFilter{flex:1;padding:11px;border:1px solid var(--line);border-radius:10px;background:#fff}.team-day{margin:22px 0}.team-day h3{margin:0 0 9px;font-size:20px}.team-task{border:1px solid var(--line);border-radius:14px;padding:13px;margin:9px 0;background:#fff}.team-task.doing{border-color:#f4b43a;background:#fffaf0}.team-task.done{opacity:.72;background:#f6fff8;border-color:#87c998}.task-time{color:var(--pink);font-weight:900}.task-title{font-weight:900;font-size:16px}.task-meta{font-size:13px;color:var(--muted);margin-top:6px;display:grid;gap:3px}.task-actions{display:flex;gap:7px;margin-top:10px;flex-wrap:wrap}.task-actions button{border:1px solid var(--line);background:#fff;border-radius:9px;padding:8px 10px;font-size:12px;font-weight:800}.task-actions .doing{background:#f4b43a;border-color:#f4b43a}.task-actions .done{background:#55ad6e;border-color:#55ad6e;color:#fff}@media(max-width:560px){.bottomnav button{font-size:9px}.team-filter-row{flex-direction:column}}
+
+.nav-svg{width:28px;height:28px;display:block;margin:0 auto;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.quick-grid .nav-svg{width:31px;height:31px}
+.bottomnav .nav-svg{width:23px;height:23px}
+.next-icon .nav-svg{width:34px;height:34px}
