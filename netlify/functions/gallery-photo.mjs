@@ -1,2 +1,0 @@
-import {getStore} from './_lib.mjs';
-export default async req=>{const id=new URL(req.url).searchParams.get('id');if(!id)return new Response('Missing id',{status:400});const files=getStore('wuzzekerb-gallery-files');const entry=await files.getWithMetadata(id,{consistency:'strong',type:'arrayBuffer'});if(!entry)return new Response('Not found',{status:404});return new Response(entry.data,{headers:{'content-type':entry.metadata?.contentType||'image/jpeg','cache-control':'public,max-age=3600'}})};

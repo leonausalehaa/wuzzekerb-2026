@@ -1,2 +1,0 @@
-import {json,getStore} from './_lib.mjs';
-export default async req=>{if(req.method!=='POST')return json({error:'Methode nicht erlaubt'},405);const sub=await req.json();if(!sub?.endpoint)return json({error:'Ungültiges Abo'},400);const id=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(sub.endpoint)).then(b=>[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join(''));await getStore('wuzzekerb-push').setJSON(id,sub);return json({ok:true})};

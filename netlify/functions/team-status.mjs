@@ -1,4 +1,0 @@
-import { json,getStore,getJson } from './_lib.mjs';
-const key='team-status-v1';
-function ok(req){const pin=process.env.TEAM_PIN||process.env.ADMIN_PIN||'';return Boolean(pin)&&req.headers.get('x-team-pin')===pin}
-export default async req=>{if(!ok(req))return json({error:'PIN falsch'},401);const store=getStore('wuzzekerb-team');if(req.method==='GET')return json(await getJson(store,key,{statuses:{},updatedAt:null}));if(req.method==='POST'){const b=await req.json().catch(()=>({}));if(!b.id||!['open','doing','done'].includes(b.status))return json({error:'Ungültige Daten'},400);const d=await getJson(store,key,{statuses:{}});d.statuses[b.id]={status:b.status,by:b.by||'',updatedAt:new Date().toISOString()};d.updatedAt=new Date().toISOString();await store.setJSON(key,d);return json(d)}return json({error:'Method not allowed'},405)};
