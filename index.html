@@ -115,7 +115,91 @@
 </section>
 
 
-<section id="team" class="view"><div class="panel team-panel"><div class="sectiontitle"><div><small>AAKC INTERN</small><h2>Team · Auf-/Abbau</h2></div></div><div id="teamGate" class="team-gate"><p class="muted">Interner Live-Plan für Helfer und Aktive.</p><label>Team-PIN<input id="teamPin" type="password" inputmode="numeric" placeholder="PIN"></label><button id="teamLoginBtn" class="pink">Team öffnen</button></div><div id="teamArea" class="hidden"><div class="team-tabs"><button class="active" data-teamtab="plan">Auf-/Abbau</button><button data-teamtab="mine">Wo muss ich hin?</button></div><div class="team-progress-card"><div><small>LIVE-FORTSCHRITT</small><b id="teamProgressText">0 %</b></div><div class="progressbar"><span id="teamProgressBar"></span></div><div class="team-stats"><span id="statDone">0 erledigt</span><span id="statDoing">0 läuft</span><span id="statOpen">0 offen</span></div></div><div id="teamPlanView"><div class="team-filter-row"><select id="phaseFilter"><option value="all">Alles</option><option value="Aufbau">Aufbau</option><option value="Abbau">Abbau</option></select><select id="dayFilter"><option value="all">Alle Tage</option></select></div><div id="teamTaskList"></div></div><div id="teamMineView" class="hidden"><label>WER BIST DU?<select id="personFilter"><option value="">Name auswählen</option></select></label><div id="myTasks"></div></div></div></div></section>
+<section id="team" class="view">
+  <div class="panel team-panel">
+    <div class="sectiontitle"><div><small>AAKC INTERN</small><h2>Kerbeborsch</h2></div></div>
+    <div id="teamGate" class="team-gate">
+      <p class="muted">Interner Bereich für Termine, Aufgaben sowie Auf- und Abbau.</p>
+      <label>Team-PIN<input id="teamPin" type="password" inputmode="numeric" placeholder="PIN"></label>
+      <button id="teamLoginBtn" class="pink">Kerbeborsch-Bereich öffnen</button>
+    </div>
+    <div id="teamArea" class="hidden">
+      <div class="team-tabs team-tabs-six">
+        <button class="active" data-teamtab="overview">Übersicht</button>
+        <button data-teamtab="dates">Termine</button>
+        <button data-teamtab="shifts">Dienste</button>
+        <button data-teamtab="tasks">Aufgaben</button>
+        <button data-teamtab="build">Auf-/Abbau</button>
+        <button data-teamtab="mine">Für mich</button>
+      </div>
+
+      <div id="teamOverviewView" class="team-subview">
+        <div class="team-dashboard">
+          <div class="dash-card"><small>NÄCHSTER INTERNER TERMIN</small><b id="internalNext">Wird geladen …</b><span id="internalNextMeta"></span></div>
+          <div class="dash-card"><small>OFFENE AUFGABEN</small><b id="customOpenCount">0</b><span>gemeinsam im Team</span></div>
+        </div>
+        <div class="team-progress-card"><div><small>AUF-/ABBAU · LIVE-FORTSCHRITT</small><b id="teamProgressText">0 %</b></div><div class="progressbar"><span id="teamProgressBar"></span></div><div class="team-stats"><span id="statDone">0 erledigt</span><span id="statDoing">0 läuft</span><span id="statOpen">0 offen</span></div></div>
+        <h3>Als Nächstes</h3><div id="overviewUpcoming"></div>
+      </div>
+
+      <div id="teamDatesView" class="team-subview hidden">
+        <div class="sectiontitle"><div><small>INTERNER ZEITPLAN</small><h3>Termine Kerbeborsch</h3></div></div>
+        <p class="muted">Interner Ablauf für Kerbeborsch und Wuzzemädels. Treffpunkte, Umziehen, Einlaufen, Dienste und weitere interne Termine können hier gemeinsam ergänzt werden.</p>
+        <button id="toggleDateForm" class="pink">+ Termin</button>
+        <form id="newTeamDateForm" class="team-task-form hidden">
+          <input id="newDateTitle" required placeholder="Termin, z. B. Treffpunkt zum Umziehen">
+          <div class="form-grid"><input id="newDateDate" type="date" required><input id="newDateTime" type="time" required></div>
+          <input id="newDateOwner" placeholder="Für wen / Verantwortlich, z. B. Alle Kerbeborsch">
+          <input id="newDateLocation" placeholder="Treffpunkt / Ort">
+          <textarea id="newDateNote" placeholder="Notiz (optional)"></textarea>
+          <button class="pink" type="submit">Termin speichern</button>
+        </form>
+        <div class="team-filter-row"><select id="internalDayFilter"><option value="all">Alle Kerbetage</option><option value="2026-09-11">Freitag · 11.09.</option><option value="2026-09-12">Samstag · 12.09.</option><option value="2026-09-13">Sonntag · 13.09.</option></select></div>
+        <div id="internalDates"></div>
+      </div>
+
+      
+      <div id="teamShiftsView" class="team-subview hidden">
+        <div class="sectiontitle"><div><small>DIENSTE & SCHICHTEN</small><h3>Wer muss wann wohin?</h3></div><button id="toggleShiftForm" class="pink">+ Dienst</button></div>
+        <p class="muted">Theke, Bonverkauf, Einlass, Essen, Cocktailbar oder andere Dienste können hier mit Personen und Uhrzeiten eingetragen werden.</p>
+        <form id="newShiftForm" class="team-task-form hidden">
+          <input id="newShiftTitle" required placeholder="Dienst, z. B. Theke">
+          <div class="form-grid"><input id="newShiftDate" type="date" required><input id="newShiftStart" type="time" required></div>
+          <div class="form-grid"><input id="newShiftEnd" type="time" placeholder="Ende"><input id="newShiftOwner" placeholder="Wer? z. B. Leon, Noah"></div>
+          <input id="newShiftLocation" placeholder="Ort, z. B. Theke im Festzelt">
+          <textarea id="newShiftNote" placeholder="Notiz (optional)"></textarea>
+          <button class="pink" type="submit">Dienst speichern</button>
+        </form>
+        <div id="shiftList"></div>
+      </div>
+
+      <div id="teamTasksView" class="team-subview hidden">
+        <div class="sectiontitle"><div><small>GEMEINSAM ORGANISIEREN</small><h3>Aufgaben</h3></div><button id="toggleTaskForm" class="pink">+ Aufgabe</button></div>
+        <form id="newTeamTaskForm" class="team-task-form hidden">
+          <input id="newTaskTitle" required placeholder="Aufgabe, z. B. Getränke holen">
+          <div class="form-grid"><input id="newTaskDate" type="date"><input id="newTaskTime" type="time"></div>
+          <input id="newTaskOwner" placeholder="Verantwortlich / Name">
+          <textarea id="newTaskNote" placeholder="Notiz (optional)"></textarea>
+          <button class="pink" type="submit">Aufgabe speichern</button>
+        </form>
+        <div id="customTaskList"></div>
+      </div>
+
+      <div id="teamBuildView" class="team-subview hidden">
+        <div class="team-progress-card"><div><small>LIVE-FORTSCHRITT</small><b id="teamProgressTextBuild">0 %</b></div><div class="progressbar"><span id="teamProgressBarBuild"></span></div></div>
+        <div class="team-filter-row"><select id="phaseFilter"><option value="all">Alles</option><option value="Aufbau">Aufbau</option><option value="Abbau">Abbau</option></select><select id="dayFilter"><option value="all">Alle Tage</option></select></div>
+        <div id="teamTaskList"></div>
+      </div>
+
+      <div id="teamMineView" class="team-subview hidden">
+        <div class="sectiontitle"><div><small>DEIN PERSÖNLICHER PLAN</small><h3>Wo muss ich wann sein?</h3></div></div>
+        <label>WER BIST DU?<select id="personFilter"><option value="">Name auswählen</option></select></label>
+        <div id="myNextCard" class="my-next-card hidden"></div>
+        <div id="myTasks"></div>
+      </div>
+    </div>
+  </div>
+</section>
 <section id="admin" class="view">
   <div class="panel">
     <div class="sectiontitle"><div><small>AAKC INTERN</small><h2>Admin</h2></div></div>

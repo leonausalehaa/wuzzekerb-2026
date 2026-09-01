@@ -85,4 +85,101 @@ if(adminPin){$('#adminLogin').classList.add('hidden');$('#adminArea').classList.
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;$('#installBtn').classList.remove('hidden')});$('#installBtn').onclick=async()=>{if(deferredPrompt){deferredPrompt.prompt();deferredPrompt=null;$('#installBtn').classList.add('hidden')}};
 if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js');
 renderSchedule();tick();setInterval(tick,1000);loadNews();loadGallery();
-\nlet teamTasks=[],teamStatuses={},teamName=localStorage.getItem('teamName')||'',teamPinVal=sessionStorage.getItem('teamPin')||'';\nasync function teamApi(path,opt={}){opt.headers={...(opt.headers||{}),'x-team-pin':teamPinVal};return api(path,opt)}\nasync function loadTeamTasks(){if(!teamTasks.length)teamTasks=await fetch('/team-tasks.json?v=1').then(r=>r.json());const d=await teamApi('/team-status').catch(()=>({statuses:{}}));teamStatuses=d.statuses||{};populateTeamFilters();renderTeam()}\nfunction st(id){return teamStatuses[id]?.status||'open'}\nfunction populateTeamFilters(){const days=[...new Map(teamTasks.map(t=>[t.date,t.day+' · '+t.date.split('-').reverse().join('.')])).entries()];$('#dayFilter').innerHTML='<option value="all">Alle Tage</option>'+days.map(([d,l])=>`<option value="${d}">${l}</option>`).join('');const owners=[...new Set(teamTasks.flatMap(t=>(t.owner||'').split(/ und | \/ |, /)).map(x=>x.trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'de'));$('#personFilter').innerHTML='<option value="">Name auswählen</option>'+owners.map(o=>`<option>${o}</option>`).join('');if(teamName)$('#personFilter').value=teamName}\nfunction card(t){const s=st(t.id);return `<div class="team-task ${s}"><div class="task-time">${t.time||'—'}</div><div class="task-title">${t.activity}</div><div class="task-meta">${t.owner?`<span>👤 ${t.owner}</span>`:''}${t.clothes?`<span>👕 ${t.clothes}</span>`:''}${t.location?`<span>📍 ${t.location}</span>`:''}${t.note?`<span>📝 ${t.note}</span>`:''}</div><div class="task-actions"><button onclick="setTeamStatus('${t.id}','open')">○ Offen</button><button class="${s==='doing'?'doing':''}" onclick="setTeamStatus('${t.id}','doing')">◐ Läuft</button><button class="${s==='done'?'done':''}" onclick="setTeamStatus('${t.id}','done')">✓ Erledigt</button></div></div>`}\nfunction renderTeam(){const ph=$('#phaseFilter').value,day=$('#dayFilter').value;const f=teamTasks.filter(t=>(ph==='all'||t.phase===ph)&&(day==='all'||t.date===day)),g={};f.forEach(t=>(g[t.date]??=[]).push(t));$('#teamTaskList').innerHTML=Object.entries(g).map(([d,l])=>`<div class="team-day"><h3>${l[0].phase} · ${l[0].day}, ${d.split('-').reverse().join('.')}</h3>${l.map(card).join('')}</div>`).join('')||'<p class="muted">Keine Aufgaben.</p>';renderProgress();renderMine()}\nfunction renderProgress(){const n=teamTasks.length,d=teamTasks.filter(t=>st(t.id)==='done').length,w=teamTasks.filter(t=>st(t.id)==='doing').length,o=n-d-w,p=n?Math.round(d/n*100):0;$('#teamProgressText').textContent=p+' %';$('#teamProgressBar').style.width=p+'%';$('#statDone').textContent=d+' erledigt';$('#statDoing').textContent=w+' läuft';$('#statOpen').textContent=o+' offen'}\nfunction renderMine(){const p=$('#personFilter').value;if(!p){$('#myTasks').innerHTML='<p class="muted">Wähle deinen Namen aus.</p>';return}teamName=p;localStorage.setItem('teamName',p);const m=teamTasks.filter(t=>(t.owner||'').toLowerCase().includes(p.toLowerCase()));$('#myTasks').innerHTML='<h3>Deine Aufgaben · '+p+'</h3>'+(m.length?m.map(card).join(''):'<p class="muted">Keine direkten Aufgaben.</p>')}\nwindow.setTeamStatus=async(id,status)=>{const d=await teamApi('/team-status',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({id,status,by:teamName||'Team'})});teamStatuses=d.statuses||{};renderTeam()}\n$('#teamLoginBtn').onclick=async()=>{teamPinVal=$('#teamPin').value;try{await teamApi('/team-check');sessionStorage.setItem('teamPin',teamPinVal);$('#teamGate').classList.add('hidden');$('#teamArea').classList.remove('hidden');loadTeamTasks()}catch{toast('Team-PIN falsch')}};if(teamPinVal){teamApi('/team-check').then(()=>{$('#teamGate').classList.add('hidden');$('#teamArea').classList.remove('hidden');loadTeamTasks()}).catch(()=>sessionStorage.removeItem('teamPin'))}\n$$('.team-tabs button').forEach(b=>b.onclick=()=>{$$('.team-tabs button').forEach(x=>x.classList.remove('active'));b.classList.add('active');$('#teamPlanView').classList.toggle('hidden',b.dataset.teamtab!=='plan');$('#teamMineView').classList.toggle('hidden',b.dataset.teamtab!=='mine');if(b.dataset.teamtab==='mine')renderMine()});$('#phaseFilter').onchange=renderTeam;$('#dayFilter').onchange=renderTeam;$('#personFilter').onchange=renderMine;\n
+
+let teamTasks=[],teamStatuses={},customTasks=[],internalDatesLive=[],teamShifts=[],teamName=localStorage.getItem('teamName')||'',teamPinVal=sessionStorage.getItem('teamPin')||'';
+async function teamApi(path,opt={}){opt.headers={...(opt.headers||{}),'x-team-pin':teamPinVal};return api(path,opt)}
+async function loadTeamTasks(){
+  if(!teamTasks.length)teamTasks=await fetch('/team-tasks.json?v=2').then(r=>r.json());
+  const [d,c,di,sh]=await Promise.all([
+    teamApi('/team-status').catch(()=>({statuses:{}})),
+    teamApi('/team-tasks-live').catch(()=>({tasks:[]})),
+    teamApi('/team-dates-live').catch(()=>({dates:[]})),
+    teamApi('/team-shifts-live').catch(()=>({shifts:[]}))
+  ]);
+  teamStatuses=d.statuses||{};customTasks=c.tasks||[];internalDatesLive=di.dates||[];teamShifts=sh.shifts||[];
+  populateTeamFilters();renderTeam();renderInternalDates();renderCustomTasks();renderShifts();renderOverview();
+}
+function st(id){return teamStatuses[id]?.status||'open'}
+function esc(v=''){return String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function populateTeamFilters(){
+  const days=[...new Map(teamTasks.map(t=>[t.date,t.day+' · '+t.date.split('-').reverse().join('.')])).entries()];
+  $('#dayFilter').innerHTML='<option value="all">Alle Tage</option>'+days.map(([d,l])=>`<option value="${d}">${l}</option>`).join('');
+  const owners=[...new Set([...teamTasks.map(t=>t.owner||''),...customTasks.map(t=>t.owner||''),...internalDatesLive.map(t=>t.owner||''),...teamShifts.map(t=>t.owner||'')].flatMap(x=>x.split(/ und | \/ |, \/|, /)).map(x=>x.trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'de'));
+  $('#personFilter').innerHTML='<option value="">Name auswählen</option>'+owners.map(o=>`<option>${esc(o)}</option>`).join('');if(teamName)$('#personFilter').value=teamName
+}
+function card(t){const s=st(t.id);return `<div class="team-task ${s}"><div class="task-time">${esc(t.time||'—')}</div><div class="task-title">${esc(t.activity)}</div><div class="task-meta">${t.owner?`<span>Verantwortlich: ${esc(t.owner)}</span>`:''}${t.clothes?`<span>Kleidung: ${esc(t.clothes)}</span>`:''}${t.location?`<span>Ort: ${esc(t.location)}</span>`:''}${t.note?`<span>Notiz: ${esc(t.note)}</span>`:''}</div><div class="task-actions"><button onclick="setTeamStatus('${t.id}','open')">○ Offen</button><button class="${s==='doing'?'doing':''}" onclick="setTeamStatus('${t.id}','doing')">◐ Läuft</button><button class="${s==='done'?'done':''}" onclick="setTeamStatus('${t.id}','done')">✓ Erledigt</button></div></div>`}
+function customCard(t){const s=t.status||'open';return `<div class="team-task ${s}"><div class="task-time">${t.date?new Date(t.date+'T12:00:00').toLocaleDateString('de-DE',{weekday:'short',day:'2-digit',month:'2-digit'}):'Ohne Termin'}${t.time?' · '+esc(t.time)+' Uhr':''}</div><div class="task-title">${esc(t.title)}</div><div class="task-meta">${t.owner?`<span>Verantwortlich: ${esc(t.owner)}</span>`:''}${t.note?`<span>Notiz: ${esc(t.note)}</span>`:''}${t.createdBy?`<span>Erstellt von: ${esc(t.createdBy)}</span>`:''}</div><div class="task-actions"><button onclick="setCustomTaskStatus('${t.id}','open')">○ Offen</button><button class="${s==='doing'?'doing':''}" onclick="setCustomTaskStatus('${t.id}','doing')">◐ Läuft</button><button class="${s==='done'?'done':''}" onclick="setCustomTaskStatus('${t.id}','done')">✓ Erledigt</button></div></div>`}
+function renderTeam(){const ph=$('#phaseFilter').value,day=$('#dayFilter').value;const f=teamTasks.filter(t=>(ph==='all'||t.phase===ph)&&(day==='all'||t.date===day)),g={};f.forEach(t=>(g[t.date]??=[]).push(t));$('#teamTaskList').innerHTML=Object.entries(g).map(([d,l])=>`<div class="team-day"><h3>${l[0].phase} · ${l[0].day}, ${d.split('-').reverse().join('.')}</h3>${l.map(card).join('')}</div>`).join('')||'<p class="muted">Keine Aufgaben.</p>';renderProgress();renderMine()}
+function renderProgress(){const n=teamTasks.length,d=teamTasks.filter(t=>st(t.id)==='done').length,w=teamTasks.filter(t=>st(t.id)==='doing').length,o=n-d-w,p=n?Math.round(d/n*100):0;$('#teamProgressText').textContent=p+' %';$('#teamProgressBar').style.width=p+'%';$('#teamProgressTextBuild').textContent=p+' %';$('#teamProgressBarBuild').style.width=p+'%';$('#statDone').textContent=d+' erledigt';$('#statDoing').textContent=w+' läuft';$('#statOpen').textContent=o+' offen'}
+function internalEvents(){return internalDatesLive.map(t=>({...t,activity:t.title})).sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time))}
+function eventCard(t){return `<div class="internal-event"><div class="internal-date"><b>${new Date(t.date+'T12:00:00').toLocaleDateString('de-DE',{weekday:'short',day:'2-digit',month:'2-digit'})}</b><span>${esc(t.time)} Uhr</span></div><div><b>${esc(t.title||t.activity)}</b>${t.owner?`<span>Für: ${esc(t.owner)}</span>`:''}${t.location?`<span>Ort: ${esc(t.location)}</span>`:''}${t.note?`<span>${esc(t.note)}</span>`:''}</div></div>`}
+function renderInternalDates(){const f=$('#internalDayFilter')?.value||'all';const ev=internalEvents().filter(t=>f==='all'||t.date===f);$('#internalDates').innerHTML=ev.map(eventCard).join('')||'<p class="muted">Keine internen Termine.</p>'}
+function renderOverview(){const now=new Date(),ev=internalEvents(),next=ev.find(t=>new Date(`${t.date}T${t.time}:00`)>=now)||ev[0];if(next){$('#internalNext').textContent=next.title;$('#internalNextMeta').textContent=`${new Date(next.date+'T12:00:00').toLocaleDateString('de-DE',{weekday:'long',day:'2-digit',month:'2-digit'})} · ${next.time} Uhr`}else{$('#internalNext').textContent='Keine Termine';$('#internalNextMeta').textContent=''}const upcoming=ev.filter(t=>new Date(`${t.date}T${t.time}:00`)>=now).slice(0,3);$('#overviewUpcoming').innerHTML=(upcoming.length?upcoming:ev.slice(0,3)).map(eventCard).join('')}
+function renderCustomTasks(){const sorted=[...customTasks].sort((a,b)=>(a.status==='done')-(b.status==='done')||((a.date||'9999')+(a.time||'')).localeCompare((b.date||'9999')+(b.time||'')));$('#customTaskList').innerHTML=sorted.length?sorted.map(customCard).join(''):'<p class="muted">Noch keine zusätzlichen Aufgaben.</p>';const open=customTasks.filter(t=>t.status!=='done').length;$('#customOpenCount').textContent=open}
+
+function shiftCard(s){
+  const end=s.end?'–'+esc(s.end):'';
+  return `<div class="shift-card"><div class="shift-time">${esc(s.start)}${end}<span>${new Date(s.date+'T12:00:00').toLocaleDateString('de-DE',{weekday:'short',day:'2-digit',month:'2-digit'})}</span></div><div class="shift-info"><b>${esc(s.title)}</b>${s.owner?`<span>👤 ${esc(s.owner)}</span>`:''}${s.location?`<span>📍 ${esc(s.location)}</span>`:''}${s.note?`<span>📝 ${esc(s.note)}</span>`:''}</div></div>`;
+}
+function renderShifts(){
+  const sorted=[...teamShifts].sort((a,b)=>(a.date+a.start).localeCompare(b.date+b.start));
+  const grouped={};sorted.forEach(s=>(grouped[s.date]??=[]).push(s));
+  $('#shiftList').innerHTML=Object.entries(grouped).map(([d,l])=>`<div class="team-day"><h3>${new Date(d+'T12:00:00').toLocaleDateString('de-DE',{weekday:'long',day:'2-digit',month:'2-digit'})}</h3>${l.map(shiftCard).join('')}</div>`).join('')||'<p class="muted">Noch keine Dienste eingetragen.</p>';
+}
+function personMatches(owner,p){
+  if(!owner)return false;
+  const o=owner.toLowerCase(),q=p.toLowerCase();
+  return o.includes(q)||o.includes('alle')||o.includes('aktive')||o.includes('kerbeborsch & wuzzemädels');
+}
+function timeSort(t){
+  const x=String(t||'');
+  return /^\d\d:\d\d$/.test(x)?x:'99:99';
+}
+function timelineCard(x){
+  let meta=[];
+  if(x.location)meta.push('📍 '+esc(x.location));
+  if(x.clothes)meta.push('👕 '+esc(x.clothes));
+  if(x.note)meta.push('📝 '+esc(x.note));
+  if(x.end)meta.push('bis '+esc(x.end)+' Uhr');
+  return `<div class="timeline-item"><div class="timeline-time">${esc(x.time||x.start||'—')}</div><div class="timeline-dot"></div><div class="timeline-content"><b>${esc(x.title||x.activity)}</b>${meta.length?`<small>${meta.join(' · ')}</small>`:''}<small class="timeline-badge">${esc(x.kind)}</small></div></div>`;
+}
+function buildPersonalItems(p){
+  const q=p.toLowerCase(),out=[];
+  internalEvents().filter(t=>personMatches(t.owner,p)).forEach(t=>out.push({...t,kind:'Termin'}));
+  teamShifts.filter(t=>personMatches(t.owner,p)).forEach(t=>out.push({...t,time:t.start,kind:'Dienst'}));
+  teamTasks.filter(t=>personMatches(t.owner,p)).forEach(t=>out.push({...t,title:t.activity,kind:t.phase}));
+  customTasks.filter(t=>personMatches(t.owner,p)).forEach(t=>out.push({...t,activity:t.title,kind:'Aufgabe'}));
+  return out.sort((a,b)=>(a.date+timeSort(a.time||a.start)).localeCompare(b.date+timeSort(b.time||b.start)));
+}
+function renderPersonalTimeline(p){
+  const items=buildPersonalItems(p);
+  const grouped={};items.forEach(x=>(grouped[x.date||'ohne']??=[]).push(x));
+  const now=Date.now();
+  const next=items.find(x=>x.date&&/^\d\d:\d\d$/.test(x.time||x.start||'')&&new Date(`${x.date}T${x.time||x.start}:00+02:00`).getTime()>=now);
+  if(next){
+    $('#myNextCard').classList.remove('hidden');
+    $('#myNextCard').innerHTML=`<small>ALS NÄCHSTES FÜR DICH</small><b>${esc(next.title||next.activity)}</b><span>${new Date(next.date+'T12:00:00').toLocaleDateString('de-DE',{weekday:'long',day:'2-digit',month:'2-digit'})} · ${esc(next.time||next.start)} Uhr${next.location?' · '+esc(next.location):''}</span>`;
+  }else $('#myNextCard').classList.add('hidden');
+  $('#myTasks').innerHTML=items.length?Object.entries(grouped).map(([d,l])=>`<div class="timeline-day"><h3>${d==='ohne'?'Ohne Termin':new Date(d+'T12:00:00').toLocaleDateString('de-DE',{weekday:'long',day:'2-digit',month:'2-digit'})}</h3>${l.map(timelineCard).join('')}</div>`).join(''):'<p class="muted">Aktuell nichts direkt zugeordnet.</p>';
+}
+function renderMine(){const p=$('#personFilter').value;if(!p){$('#myNextCard')?.classList.add('hidden');$('#myTasks').innerHTML='<p class="muted">Wähle deinen Namen aus. Danach bekommst du deinen persönlichen Ablauf chronologisch angezeigt.</p>';return}teamName=p;localStorage.setItem('teamName',p);renderPersonalTimeline(p)}
+window.setTeamStatus=async(id,status)=>{const d=await teamApi('/team-status',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({id,status,by:teamName||'Team'})});teamStatuses=d.statuses||{};renderTeam();renderOverview()}
+window.setCustomTaskStatus=async(id,status)=>{const d=await teamApi('/team-tasks-live',{method:'PATCH',headers:{'content-type':'application/json'},body:JSON.stringify({id,status,by:teamName||'Team'})});customTasks=d.tasks||[];renderCustomTasks();populateTeamFilters();renderMine();renderOverview()}
+$('#teamLoginBtn').onclick=async()=>{teamPinVal=$('#teamPin').value;try{await teamApi('/team-check');sessionStorage.setItem('teamPin',teamPinVal);$('#teamGate').classList.add('hidden');$('#teamArea').classList.remove('hidden');loadTeamTasks()}catch{toast('Team-PIN falsch')}};
+if(teamPinVal){teamApi('/team-check').then(()=>{$('#teamGate').classList.add('hidden');$('#teamArea').classList.remove('hidden');loadTeamTasks()}).catch(()=>sessionStorage.removeItem('teamPin'))}
+$$('.team-tabs button').forEach(b=>b.onclick=()=>{$$('.team-tabs button').forEach(x=>x.classList.remove('active'));b.classList.add('active');$$('.team-subview').forEach(x=>x.classList.add('hidden'));const map={overview:'#teamOverviewView',dates:'#teamDatesView',shifts:'#teamShiftsView',tasks:'#teamTasksView',build:'#teamBuildView',mine:'#teamMineView'};$(map[b.dataset.teamtab]).classList.remove('hidden');if(b.dataset.teamtab==='mine')renderMine()});
+$('#phaseFilter').onchange=renderTeam;$('#dayFilter').onchange=renderTeam;$('#personFilter').onchange=renderMine;
+$('#toggleTaskForm').onclick=()=>$('#newTeamTaskForm').classList.toggle('hidden');
+$('#newTeamTaskForm').onsubmit=async e=>{e.preventDefault();const body={title:$('#newTaskTitle').value.trim(),date:$('#newTaskDate').value,time:$('#newTaskTime').value,owner:$('#newTaskOwner').value.trim(),note:$('#newTaskNote').value.trim(),createdBy:teamName||'Team'};if(!body.title)return;const d=await teamApi('/team-tasks-live',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});customTasks=d.tasks||[];e.target.reset();e.target.classList.add('hidden');renderCustomTasks();populateTeamFilters();renderMine();renderOverview();toast('Aufgabe gespeichert')};
+
+$('#internalDayFilter').onchange=renderInternalDates;
+$('#toggleDateForm').onclick=()=>$('#newTeamDateForm').classList.toggle('hidden');
+$('#newTeamDateForm').onsubmit=async e=>{e.preventDefault();const body={title:$('#newDateTitle').value.trim(),date:$('#newDateDate').value,time:$('#newDateTime').value,owner:$('#newDateOwner').value.trim(),location:$('#newDateLocation').value.trim(),note:$('#newDateNote').value.trim(),createdBy:teamName||'Team'};const d=await teamApi('/team-dates-live',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});internalDatesLive=d.dates||[];e.target.reset();e.target.classList.add('hidden');renderInternalDates();renderOverview();renderMine();toast('Termin gespeichert')};
+
+$('#toggleShiftForm')?.addEventListener('click',()=>$('#newShiftForm').classList.toggle('hidden'));
+$('#newShiftForm')?.addEventListener('submit',async e=>{
+  e.preventDefault();
+  const body={title:$('#newShiftTitle').value.trim(),date:$('#newShiftDate').value,start:$('#newShiftStart').value,end:$('#newShiftEnd').value,owner:$('#newShiftOwner').value.trim(),location:$('#newShiftLocation').value.trim(),note:$('#newShiftNote').value.trim(),createdBy:teamName||'Team'};
+  const d=await teamApi('/team-shifts-live',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});
+  teamShifts=d.shifts||[];e.target.reset();e.target.classList.add('hidden');renderShifts();populateTeamFilters();renderMine();toast('Dienst gespeichert');
+});
