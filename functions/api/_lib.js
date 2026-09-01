@@ -1,21 +1,28 @@
-export const json = (data, status = 200) =>
-  new Response(JSON.stringify(data), {
+export function json(data, status = 200) {
+  return new Response(JSON.stringify(data), {
     status,
     headers: {
-      "content-type": "application/json; charset=utf-8",
-      "cache-control": "no-store"
+      "content-type": "application/json; charset=utf-8"
     }
   });
+}
 
-export const adminOk = (request, env) =>
-  Boolean(env.ADMIN_PIN) && request.headers.get("x-admin-pin") === env.ADMIN_PIN;
+export function adminOk(request, env) {
+  const pin = request.headers.get("x-admin-pin") || "";
+  return !!env.ADMIN_PIN && pin === env.ADMIN_PIN;
+}
 
-export const teamOk = (request, env) => {
-  const pin = env.TEAM_PIN || env.ADMIN_PIN || "";
-  return Boolean(pin) && request.headers.get("x-team-pin") === pin;
-};
+/*
+  TEAM-BEREICH IST ÖFFENTLICH.
+  Deshalb wird keine TEAM_PIN-Prüfung mehr durchgeführt.
+*/
+export function teamOk(request, env) {
+  return true;
+}
 
 export async function getJson(kv, key, fallback = null) {
+  if (!kv) return fallback;
+
   try {
     const value = await kv.get(key, "json");
     return value ?? fallback;
@@ -25,16 +32,37 @@ export async function getJson(kv, key, fallback = null) {
 }
 
 export async function putJson(kv, key, value) {
-  await kv.put(key, JSON.stringify(value));
+  if (!kv) {
+    throw new Error("WUZZE_KV binding fehlt");
+  }
+
+  await kv.put(
+    key,
+    JSON.stringify(value)
+  );
 }
 
-export async function listAll(kv, prefix) {
+export async function listAll(kv, options = {}) {
+  if (!kv) return [];
+
+  const items = [];
   let cursor;
-  const keys = [];
+
   do {
-    const page = await kv.list({ prefix, cursor });
-    keys.push(...page.keys);
-    cursor = page.list_complete ? undefined : page.cursor;
+    const result = await kv.list({
+      ...options,
+      ...(cursor ? { cursor } : {})
+    });
+
+    if (Array.isArray(result.keys)) {
+      items.push(...result.keys);
+    }
+
+    cursor = result.list_complete
+      ? undefined
+      : result.cursor;
+
   } while (cursor);
-  return keys;
+
+  return items;
 }
