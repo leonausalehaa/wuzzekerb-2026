@@ -2,5 +2,9 @@
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "wuzzekerb-2026",
   "compatibility_date": "2026-09-01",
+  "compatibility_flags": [
+    "nodejs_compat",
+    "enable_nodejs_http_modules"
+  ],
   "pages_build_output_dir": "./public"
 }
