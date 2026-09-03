@@ -517,24 +517,43 @@ async function loadAdmin(){
 
 if($('#sendNews')){
   $('#sendNews').onclick = async () => {
-    await api('/push-send',{
-      method:'POST',
-      headers:{
-        'content-type':'application/json',
-        'x-admin-pin':adminPin
-      },
-      body:JSON.stringify({
-        title:$('#newsTitle').value,
-        body:$('#newsBody').value
-      })
-    });
+    const button = $('#sendNews');
+    const title = $('#newsTitle').value.trim();
+    const body = $('#newsBody').value.trim();
 
-    toast('Push-News gesendet');
+    if(!title || !body){
+      toast('Bitte Titel und Nachricht eingeben');
+      return;
+    }
 
-    $('#newsTitle').value='';
-    $('#newsBody').value='';
+    button.disabled = true;
+    button.textContent = 'Wird gesendet …';
 
-    loadNews();
+    try{
+      const result = await api('/push-send',{
+        method:'POST',
+        headers:{
+          'content-type':'application/json',
+          'x-admin-pin':adminPin
+        },
+        body:JSON.stringify({title,body})
+      });
+
+      toast(
+        result.sent > 0
+          ? `Push-News an ${result.sent} Gerät(e) gesendet`
+          : 'News gespeichert – noch keine Push-Abonnenten'
+      );
+
+      $('#newsTitle').value='';
+      $('#newsBody').value='';
+      await loadNews();
+    }catch(error){
+      toast(error.message || 'Push konnte nicht gesendet werden');
+    }finally{
+      button.disabled = false;
+      button.textContent = '🔔 Push senden';
+    }
   };
 }
 

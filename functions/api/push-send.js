@@ -14,7 +14,7 @@ export async function onRequest({ request, env }) {
     env.VAPID_PRIVATE_KEY
   );
 
-  const keys = await listAll(env.WUZZE_KV, "push-sub:");
+  const keys = await listAll(env.WUZZE_KV, { prefix: "push-sub:" });
   let sent = 0, removed = 0;
   for (const k of keys) {
     const sub = await getJson(env.WUZZE_KV, k.name);
