@@ -12,12 +12,9 @@ export function adminOk(request, env) {
   return !!env.ADMIN_PIN && pin === env.ADMIN_PIN;
 }
 
-/*
-  TEAM-BEREICH IST ÖFFENTLICH.
-  Deshalb wird keine TEAM_PIN-Prüfung mehr durchgeführt.
-*/
 export function teamOk(request, env) {
-  return true;
+  const pin = request.headers.get("x-team-pin") || "";
+  return !!env.TEAM_PIN && pin === env.TEAM_PIN;
 }
 
 export async function getJson(kv, key, fallback = null) {

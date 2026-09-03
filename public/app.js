@@ -4,6 +4,7 @@ const $$ = s => [...document.querySelectorAll(s)];
 const API = '/api';
 let deferredPrompt = null;
 let adminPin = sessionStorage.getItem('aakcPin') || '';
+let teamPin = sessionStorage.getItem('teamPin') || '';
 
 const events = [
   ['2026-09-11','18:00','Öffnung des Kerbeplatzes','Start in das Jubiläumswochenende'],
@@ -82,7 +83,7 @@ function toast(t){
   el.t = setTimeout(() => el.classList.remove('show'), 3000);
 }
 
-function switchView(v){
+async function switchView(v){
   $$('.view').forEach(x => x.classList.toggle('active', x.id === v));
 
   $$('.bottomnav button').forEach(x =>
@@ -98,13 +99,7 @@ function switchView(v){
   }
 
   if(v === 'team'){
-    const gate = $('#teamGate');
-    const area = $('#teamArea');
-
-    if(gate) gate.classList.add('hidden');
-    if(area) area.classList.remove('hidden');
-
-    loadTeamTasks();
+    await openTeamArea();
   }
 }
 
@@ -115,10 +110,6 @@ $$('.bottomnav button').forEach(b => {
 document.querySelectorAll('[data-go]').forEach(b => {
   b.addEventListener('click', () => switchView(b.dataset.go));
 });
-
-if(location.hash){
-  switchView(location.hash.slice(1));
-}
 
 function nextEvent(){
   return events.find(e => e.start > Date.now());
@@ -620,17 +611,23 @@ let teamName =
   localStorage.getItem('teamName') || '';
 
 async function teamApi(path,opt={}){
-  return api(path,opt);
+  const headers = new Headers(opt.headers || {});
+  headers.set('x-team-pin',teamPin);
+
+  try{
+    return await api(path,{...opt,headers});
+  }catch(error){
+    if(/PIN falsch|Fehler 401/.test(error.message)){
+      lockTeamArea();
+    }
+    throw error;
+  }
 }
 
 async function loadTeamTasks(){
 
-  if(!teamTasks.length){
-    teamTasks = await fetch('/team-tasks.json?v=3')
-      .then(r => r.json());
-  }
-
-  const [d,c,di,sh] = await Promise.all([
+  const [build,d,c,di,sh] = await Promise.all([
+    teamApi('/team-build-plan'),
     teamApi('/team-status')
       .catch(() => ({statuses:{}})),
 
@@ -644,6 +641,7 @@ async function loadTeamTasks(){
       .catch(() => ({shifts:[]}))
   ]);
 
+  teamTasks = build.tasks || [];
   teamStatuses = d.statuses || {};
   customTasks = c.tasks || [];
   internalDatesLive = di.dates || [];
@@ -1428,7 +1426,7 @@ function renderMine(){
 
 
 /* =========================================================
-   TEAM ÄNDERUNGEN – OHNE PIN
+   TEAM ÄNDERUNGEN
 ========================================================= */
 
 window.setTeamStatus = async(id,status) => {
@@ -1475,17 +1473,84 @@ window.setCustomTaskStatus = async(id,status) => {
 };
 
 
-/* TEAM SOFORT SICHTBAR */
-
 const teamGate = $('#teamGate');
 const teamArea = $('#teamArea');
 
-if(teamGate){
-  teamGate.classList.add('hidden');
+function showTeamGate(){
+  if(teamGate) teamGate.classList.remove('hidden');
+  if(teamArea) teamArea.classList.add('hidden');
 }
 
-if(teamArea){
-  teamArea.classList.remove('hidden');
+function showTeamArea(){
+  if(teamGate) teamGate.classList.add('hidden');
+  if(teamArea) teamArea.classList.remove('hidden');
+}
+
+function lockTeamArea(){
+  teamPin = '';
+  sessionStorage.removeItem('teamPin');
+  showTeamGate();
+}
+
+async function openTeamArea(){
+  if(!teamPin){
+    showTeamGate();
+    return;
+  }
+
+  try{
+    await teamApi('/team-check');
+    showTeamArea();
+    await loadTeamTasks();
+  }catch(error){
+    lockTeamArea();
+  }
+}
+
+showTeamGate();
+
+if($('#teamLoginBtn')){
+  $('#teamLoginBtn').onclick = async() => {
+    const input = $('#teamPin');
+    const candidate = input?.value.trim() || '';
+
+    if(!candidate){
+      toast('Bitte Team-PIN eingeben');
+      input?.focus();
+      return;
+    }
+
+    teamPin = candidate;
+
+    try{
+      await teamApi('/team-check');
+      sessionStorage.setItem('teamPin',teamPin);
+      if(input) input.value = '';
+      showTeamArea();
+      await loadTeamTasks();
+      toast('Interner Bereich geöffnet');
+    }catch(error){
+      lockTeamArea();
+      toast('Team-PIN falsch');
+      input?.focus();
+    }
+  };
+}
+
+if($('#teamPin')){
+  $('#teamPin').addEventListener('keydown',event => {
+    if(event.key === 'Enter'){
+      event.preventDefault();
+      $('#teamLoginBtn')?.click();
+    }
+  });
+}
+
+if($('#teamLogoutBtn')){
+  $('#teamLogoutBtn').onclick = () => {
+    lockTeamArea();
+    toast('Interner Bereich gesperrt');
+  };
 }
 
 
@@ -1708,7 +1773,7 @@ setInterval(tick,1000);
 loadNews();
 loadGallery();
 
-/* Wenn direkt #team geöffnet wird */
-if(location.hash === '#team'){
-  loadTeamTasks().catch(console.error);
+/* Direkt verlinkte Ansicht erst nach vollständiger Initialisierung öffnen. */
+if(location.hash){
+  switchView(location.hash.slice(1)).catch(console.error);
 }

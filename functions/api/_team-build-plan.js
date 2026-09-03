@@ -1,4 +1,4 @@
-[
+export default [
   {
     "id": "t001",
     "date": "2026-09-04",
@@ -971,4 +971,4 @@
     "location": "Altenhain",
     "phase": "Abbau"
   }
-]
+];

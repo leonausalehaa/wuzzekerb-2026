@@ -1,4 +1,4 @@
-const CACHE='wuzzekerb-v20260818-2';
+const CACHE='wuzzekerb-v20260903-team-pin';
 self.addEventListener('install',event=>{self.skipWaiting();});
 self.addEventListener('activate',event=>{
   event.waitUntil((async()=>{

@@ -1,4 +1,4 @@
-import { json, getJson, putJson } from "./_lib.js";
+import { json, teamOk, getJson, putJson } from "./_lib.js";
 
 const key = "team-internal-dates-v2";
 
@@ -114,6 +114,10 @@ const seed = [
 ];
 
 export async function onRequest({ request, env }) {
+  if (!teamOk(request, env)) {
+    return json({ error: "PIN falsch" }, 401);
+  }
+
   try {
     let d = await getJson(env.WUZZE_KV, key, null);
 

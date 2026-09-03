@@ -154,6 +154,7 @@ main{max-width:900px;margin:auto}
 .team-tabs-six{display:flex!important;overflow-x:auto;gap:7px;padding-bottom:5px;scrollbar-width:none}
 .team-tabs-six::-webkit-scrollbar{display:none}
 .team-tabs-six button{min-width:max-content;flex:0 0 auto}
+.team-session-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 14px;padding:10px 12px;border-radius:12px;background:var(--soft);font-size:13px;font-weight:800}.team-session-row button{border:1px solid var(--line);border-radius:9px;background:#fff;padding:8px 11px;font-weight:800}
 .shift-card{border:1px solid var(--line);border-radius:14px;padding:13px;margin:9px 0;background:#fff;display:grid;grid-template-columns:105px 1fr;gap:12px}
 .shift-time{color:var(--pink);font-weight:900}
 .shift-time span{display:block;font-size:12px;color:var(--muted);margin-top:2px}
